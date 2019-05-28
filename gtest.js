@@ -2,7 +2,7 @@
  *	Module Description
  *
  *	Version		Date			Author				Remarks
- *	0.4			05-27-2019		Peter Sai-Ngarm		This is for a Grove Collaborative coding challenge
+ *	0.5			05-27-2019		Peter Sai-Ngarm		This is for a Grove Collaborative coding challenge
  *													Note that this is a suitelet page that will feed a 
  *													scheduled script to find the closest store location
  *													given an address input 
@@ -22,7 +22,7 @@ function gAddressPage(request, response){
 	var stage = 'first load';
 	var surl = 'https://us-street.api.smartystreets.com/street-address';
 	var zurl = 'https://us-zipcode.api.smartystreets.com/lookup';
-	var params = '?auth-id=<smartystreetsauth-id>&auth-token=<smartystreetstoken>&'		
+	var params = '?auth-id=smartystreets_authid&auth-token=smartystreets_token&'		
 	var res;
 	var rbody;
 	var latres;
@@ -33,7 +33,8 @@ function gAddressPage(request, response){
 
 	var mikm = request.getParameter('custpage_mikm');
 	var txtjsn = request.getParameter('custpage_txtjsn');
-	nlapiLogExecution('ERROR', 'mikm', mikm);
+	nlapiLogExecution('DEBUG', 'mikm', mikm);
+
 	if(request.getParameter('custpage_addmth') == 'addmth'){
 		nlapiLogExecution('DEBUG', 'Free form address method triggered', 'nb');
 		stage = 'ffa';
@@ -88,9 +89,9 @@ function gAddressPage(request, response){
 	}
 	if(request.getParameter('custpage_zip')){
 		stage = 'zipresults';
-		nlapiLogExecution('DEBUG', 'Running zip mechanism', request.getParameter('custpage_zip'));
+		nlapiLogExecution('DEBUG', 'Running zip mechanism', request.getParameter('custpage_zip').replace(/\D/g,''));
 		params += 'zipcode=';
-		params += encodeURI(request.getParameter('custpage_zip'));
+		params += encodeURI(request.getParameter('custpage_zip').replace(/\D/g,''));
 		res = nlapiRequestURL((zurl + params), null, null, 'GET');
 		nlapiLogExecution('DEBUG', 'Getting URL', (zurl + params));
 		rbody = res.getBody();
@@ -147,7 +148,7 @@ function createGForm(stage, dresults, mikm, txtjsn){
     if(stage == 'first load'){
     	form.addField('custpage_addmth', 'radio', 'Free Form Address Request', 'addmth');//addmth would be the field value if radio is selected
     	form.addField('custpage_addmth', 'radio', 'Zip-Only Address Request', 'zipmth');
-    	form.getField('custpage_addmth', 'addmth' ).setDefaultValue('addmth');
+    	form.getField('custpage_addmth', 'addmth').setDefaultValue('addmth');
     	form.addSubmitButton('Next');
     }
     else if(stage == 'ffa'){
